@@ -1,0 +1,30 @@
+CREATE TABLE `easset`.`role` (`id` INT(5) NOT NULL , `Role` VARCHAR(25) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+CREATE TABLE `easset`.`user` (`id` INT(5) NOT NULL AUTO_INCREMENT , `Name` VARCHAR(50) NOT NULL , `Role_id` INT(5) NOT NULL , `Telephone` VARCHAR(12) NOT NULL , `Email` VARCHAR(50) NOT NULL , `Username` VARCHAR(50) NOT NULL , `Password` VARCHAR(50) NOT NULL , `LastLogin` DATE NOT NULL , `FirstLogin` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`), UNIQUE (`id`, `Role_id`), UNIQUE (`Username`)) ENGINE = InnoDB;
+ALTER TABLE `user` ADD CONSTRAINT `role_fk` FOREIGN KEY (`Role_id`) REFERENCES `role`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+CREATE TABLE `easset`.`asset_type` (`id` INT NOT NULL AUTO_INCREMENT , `type` VARCHAR(50) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+ALTER TABLE `asset_type` ADD `period` INT(5) NOT NULL AFTER `type`, ADD `fee` INT(5) NOT NULL AFTER `period`, ADD `ban_days` INT(5) NOT NULL AFTER `fee`;
+CREATE TABLE `easset`.`asset` (`id` INT NOT NULL AUTO_INCREMENT , `Name` VARCHAR(50) NOT NULL , `type` INT NOT NULL , `Description` TEXT NOT NULL , `Date_added` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP , `isAvailable` BOOLEAN NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+ALTER TABLE `asset` ADD CONSTRAINT `type_fk` FOREIGN KEY (`type`) REFERENCES `asset_type`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+CREATE TABLE `easset`.`messages` (`id` INT NOT NULL AUTO_INCREMENT , `user_id` INT NOT NULL , `Message` TEXT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+ALTER TABLE `messages` ADD FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+INSERT INTO `role` (`id`, `Role`) VALUES ('1', 'Admin'), ('2', 'Borrowers')
+
+ALTER TABLE `user` CHANGE `LastLogin` `LastLogin` DATETIME NOT NULL;
+ALTER TABLE `user` CHANGE `FirstLogin` `FirstLogin` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `asset` CHANGE `Date_added` `Date_added` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `messages` ADD `time_added` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `Message`;
+INSERT INTO `user` (`id`, `Name`, `Role_id`, `Telephone`, `Email`, `Username`, `Password`, `LastLogin`, `FirstLogin`) VALUES ('1', 'Administator', '1', '9876543210', 'admin@gmail.com', 'Admin', 'admin@123', '2022-09-20 20:03:39.000000', current_timestamp()), ('2', 'Virat Kohli', '2', '9638527410', 'virat@bcci.in', 'virat', 'virat@123', '2022-09-20 20:03:39.000000', current_timestamp());
+
+
+INSERT INTO `asset_type` (`id`, `type`, `period`, `fee`, `ban_days`) VALUES ('1', 'Laptop', '10', '100', '14'), ('2', 'Books', '7', '15', '-1');
+
+INSERT INTO `asset` (`id`, `Name`, `type`, `Description`, `Date_added`, `isAvailable`) VALUES ('1', 'Dell inspiron', '1', 'A very good pc having i5 processor and Nvidia graphics card with 512 gb ssd,1 TB HDD and 16 gigs of ram.', current_timestamp(), '1');
+INSERT INTO `messages` (`id`, `user_id`, `Message`, `time_added`) VALUES ('1', '2', 'Dell PC Overdue Please return before your next century', current_timestamp());
+
+CREATE TABLE `easset`.`allocation` (`id` INT NOT NULL AUTO_INCREMENT , `user_id` INT NOT NULL , `assed_id` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `allocation` ADD CONSTRAINT `allocation_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE; ALTER TABLE `allocation` ADD CONSTRAINT `allocation_asset_fk` FOREIGN KEY (`assed_id`) REFERENCES `asset`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
